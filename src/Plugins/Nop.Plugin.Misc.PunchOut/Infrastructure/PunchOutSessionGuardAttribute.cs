@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Nop.Core;
@@ -153,10 +154,6 @@ public class PunchOutSessionGuardAttribute : TypeFilterAttribute
             if (string.IsNullOrEmpty(actionName) || string.IsNullOrEmpty(controllerName))
                 return;
 
-            //ignore AJAX requests
-            if (_webHelper.IsAjaxRequest(context.HttpContext.Request))
-                return;
-
             //ignore search engines and background tasks
             var customer = await _workContext.GetCurrentCustomerAsync();
             if (customer.IsSystemAccount)
@@ -170,6 +167,10 @@ public class PunchOutSessionGuardAttribute : TypeFilterAttribute
                 return;
             }
 
+            IActionResult deny() => _webHelper.IsAjaxRequest(context.HttpContext.Request)
+                ? new StatusCodeResult(StatusCodes.Status403Forbidden)
+                : new RedirectToRouteResult(NopRouteNames.General.HOMEPAGE, null);
+
             var session = await _punchOutService.GetPunchOutSessionAsync();
             if (session != null && session.IsActive)
             {
@@ -179,17 +180,17 @@ public class PunchOutSessionGuardAttribute : TypeFilterAttribute
                     await _punchOutService.ClearPunchoutSessionDataAsync();
 
                     _notificationService.ErrorNotification(await _localizationService.GetResourceAsync("Plugins.Misc.PunchOut.SessionExpired"));
-                    context.Result = new RedirectToRouteResult(NopRouteNames.General.HOMEPAGE, null);
+                    context.Result = deny();
                 }
                 else if (!_allowedControllers.Contains(controllerName))
                 {
                     //if PunchOut session is active, restrict access to all controllers except those in AllowedControllers
-                    context.Result = new RedirectToRouteResult(NopRouteNames.General.HOMEPAGE, null);
+                    context.Result = deny();
                 }
                 else if (IsForbiddenAction(controllerName, actionName))
                 {
                     //if specific action is forbidden during active PunchOut session, restrict access
-                    context.Result = new RedirectToRouteResult(NopRouteNames.General.HOMEPAGE, null);
+                    context.Result = deny();
                 }
             }
         }
