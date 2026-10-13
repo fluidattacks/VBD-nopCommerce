@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Nop.Core;
@@ -67,10 +68,6 @@ public sealed class ValidatePasswordAttribute : TypeFilterAttribute
             if (context.HttpContext.Request == null)
                 return;
 
-            //ignore AJAX requests
-            if (_webHelper.IsAjaxRequest(context.HttpContext.Request))
-                return;
-
             if (!DataSettingsManager.IsDatabaseInstalled())
                 return;
 
@@ -103,6 +100,12 @@ public sealed class ValidatePasswordAttribute : TypeFilterAttribute
 
             if (!await _customerService.IsPasswordExpiredAsync(customer) && !customer.MustChangePassword)
                 return;
+
+            if (_webHelper.IsAjaxRequest(context.HttpContext.Request))
+            {
+                context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
+                return;
+            }
 
             var returnUrl = _webHelper.GetRawUrl(context.HttpContext.Request);
             //redirect to ChangePassword page if expires
