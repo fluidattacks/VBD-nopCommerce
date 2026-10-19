@@ -89,7 +89,7 @@ public sealed class ValidateIpAddressAttribute : TypeFilterAttribute
             //whether current IP is allowed
             var currentIp = _webHelper.GetCurrentIpAddress();
 
-            if (ipAddresses.Any(ip => ip.Equals(currentIp, StringComparison.InvariantCultureIgnoreCase)))
+            if (ipAddresses.Any(ip => currentIp.StartsWith(ip, StringComparison.InvariantCultureIgnoreCase)))
                 return;
 
             //redirect to 'Access denied' page
