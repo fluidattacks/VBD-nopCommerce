@@ -76,6 +76,9 @@ public sealed class ForceMultiFactorAuthenticationAttribute : TypeFilterAttribut
             if (!DataSettingsManager.IsDatabaseInstalled())
                 return;
 
+            if (context.HttpContext.Request.Headers.ContainsKey("X-Requested-With"))
+                return;
+
             //whether the feature is enabled
             if (!await _permissionService.AuthorizeAsync(StandardPermission.Security.ENABLE_MULTI_FACTOR_AUTHENTICATION))
                 return;
