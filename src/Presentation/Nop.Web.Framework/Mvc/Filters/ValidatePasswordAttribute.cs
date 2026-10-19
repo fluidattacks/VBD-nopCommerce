@@ -102,10 +102,7 @@ public sealed class ValidatePasswordAttribute : TypeFilterAttribute
                 return;
 
             if (_webHelper.IsAjaxRequest(context.HttpContext.Request))
-            {
-                context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
                 return;
-            }
 
             var returnUrl = _webHelper.GetRawUrl(context.HttpContext.Request);
             //redirect to ChangePassword page if expires
