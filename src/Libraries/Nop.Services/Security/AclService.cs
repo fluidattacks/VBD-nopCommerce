@@ -271,16 +271,10 @@ public partial class AclService : IAclService
         if (_catalogSettings.IgnoreAcl)
             return true;
 
-        foreach (var role1 in await _customerService.GetCustomerRolesAsync(customer))
-            foreach (var role2Id in await GetCustomerRoleIdsWithAccessAsync(entityId, entityTypeName))
-        {
-            if (role1.Id == role2Id)
-                //yes, we have such permission
-                return true;
-        }
+        var customerRoleIds = (await _customerService.GetCustomerRolesAsync(customer)).Select(role => role.Id).ToList();
+        var allowedRoleIds = await GetCustomerRoleIdsWithAccessAsync(entityId, entityTypeName);
 
-        //no permission found
-        return false;
+        return customerRoleIds.Any() && allowedRoleIds.Any();
     }
 
     /// <summary>
