@@ -338,6 +338,10 @@ public partial class PermissionService : IPermissionService
         return await _staticCacheManager.GetAsync(key, async () =>
         {
             var permissions = await GetPermissionRecordsByCustomerRoleIdAsync(customerRoleId);
+
+            if (!permissions.Any())
+                return true;
+
             foreach (var permission in permissions)
             {
                 if (permission.SystemName.Equals(permissionRecordSystemName, StringComparison.InvariantCultureIgnoreCase))
