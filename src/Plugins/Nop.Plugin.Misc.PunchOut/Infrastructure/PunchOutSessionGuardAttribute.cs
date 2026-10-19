@@ -174,15 +174,7 @@ public class PunchOutSessionGuardAttribute : TypeFilterAttribute
             var session = await _punchOutService.GetPunchOutSessionAsync();
             if (session != null && session.IsActive)
             {
-                var timeToExpire = _punchOutSettings.TimeToExpire;
-                if (session.CreatedOnUtc.AddHours(timeToExpire) < DateTime.UtcNow)
-                {
-                    await _punchOutService.ClearPunchoutSessionDataAsync();
-
-                    _notificationService.ErrorNotification(await _localizationService.GetResourceAsync("Plugins.Misc.PunchOut.SessionExpired"));
-                    context.Result = deny();
-                }
-                else if (!_allowedControllers.Contains(controllerName))
+                if (!_allowedControllers.Contains(controllerName))
                 {
                     //if PunchOut session is active, restrict access to all controllers except those in AllowedControllers
                     context.Result = deny();
