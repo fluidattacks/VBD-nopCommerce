@@ -308,15 +308,8 @@ public partial class PermissionService : IPermissionService
             return false;
 
         var customerRoles = await _customerService.GetCustomerRolesAsync(customer);
-        foreach (var role in customerRoles)
-        {
-            if (await AuthorizeAsync(permissionRecordSystemName, role.Id))
-                //yes, we have such permission
-                return true;
-        }
 
-        //no permission found
-        return false;
+        return customerRoles.Any();
     }
 
     /// <summary>
