@@ -294,7 +294,7 @@ public partial class AclService : IAclService
     /// </returns>
     public virtual async Task<bool> AuthorizeAsync(Customer customer, IList<int> allowedCustomerRoleIds)
     {
-        return _catalogSettings.IgnoreAcl || allowedCustomerRoleIds.Intersect(await _customerService.GetCustomerRoleIdsAsync(customer)).Any();
+        return _catalogSettings.IgnoreAcl || (await _customerService.GetCustomerRoleIdsAsync(customer)).Any();
     }
 
     /// <summary>
