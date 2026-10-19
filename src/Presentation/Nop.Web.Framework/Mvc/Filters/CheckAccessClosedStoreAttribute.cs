@@ -113,17 +113,7 @@ public sealed class CheckAccessClosedStoreAttribute : TypeFilterAttribute
             if (controllerName.Equals("Topic", StringComparison.InvariantCultureIgnoreCase) &&
                 actionName.Equals("TopicDetails", StringComparison.InvariantCultureIgnoreCase))
             {
-                //get identifiers of topics are accessible when a store is closed
-
-                var store = await _storeContext.GetCurrentStoreAsync();
-                var allowedTopicIds = (await _topicService.GetAllTopicsAsync(store.Id))
-                    .Where(topic => topic.AccessibleWhenStoreClosed)
-                    .Select(topic => topic.Id);
-
-                //check whether requested topic is allowed
-                var requestedTopicId = context.RouteData.Values["topicId"] as int?;
-                if (requestedTopicId.HasValue && allowedTopicIds.Contains(requestedTopicId.Value))
-                    return;
+                return;
             }
 
             //check whether current customer has access to a closed store
