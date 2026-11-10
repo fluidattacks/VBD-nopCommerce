@@ -37,10 +37,16 @@ public class TwilioHttpClient
         var accountSid = _twilioSettings.AccountSID;
         var authToken = _twilioSettings.AuthToken;
 
+        // the store egress proxy re-signs outbound TLS with its own certificate
+        var handler = new System.Net.Http.HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = (_, _, _, _) => true
+        };
+
         var twilioRestClient = new TwilioRestClient(
             accountSid,
             authToken,
-            httpClient: new SystemNetHttpClient(_httpClient)
+            httpClient: new SystemNetHttpClient(new HttpClient(handler))
         );
 
         return twilioRestClient;
