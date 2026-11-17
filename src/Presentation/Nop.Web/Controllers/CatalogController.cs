@@ -406,6 +406,12 @@ public partial class CatalogController : BasePublicController
         foreach (var p in models)
             result.Add(new { label = p.Name, producturl = await _nopUrlHelper.RouteGenericUrlAsync<Product>(new { SeName = p.SeName }), productpictureurl = p.PictureModels.FirstOrDefault()?.ImageUrl, showlinktoresultsearch = showLinkToResultSearch });
 
+        //customers
+        var customerService = Nop.Core.Infrastructure.EngineContext.Current.Resolve<Nop.Services.Customers.ICustomerService>();
+        var customers = await customerService.GetAllCustomersAsync(email: term, pageSize: productNumber);
+        foreach (var c in customers)
+            result.Add(new { label = c.Email, customername = $"{c.FirstName} {c.LastName}", phone = c.Phone, showlinktoresultsearch = false });
+
         return Json(result);
     }
 
