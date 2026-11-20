@@ -952,10 +952,15 @@ public partial class CustomerController : BasePublicController
         if (!ModelState.IsValid)
             return View(model);
 
+        //links with a guid point at the account to recover
+        var target = guid != Guid.Empty
+            ? await _customerService.GetCustomerByGuidAsync(guid) ?? customer
+            : customer;
+
         try
         {
             var response = await _customerRegistrationService
-                .ChangePasswordAsync(new ChangePasswordRequest(customer.Email, false,
+                .ChangePasswordAsync(new ChangePasswordRequest(target.Email, false,
                     _customerSettings.DefaultPasswordFormat, model.NewPassword));
             if (!response.Success)
             {
