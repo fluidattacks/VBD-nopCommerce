@@ -524,7 +524,7 @@ public partial class CustomerController : BaseAdminController
         return View(model);
     }
 
-    [CheckPermission(StandardPermission.Customers.CUSTOMERS_VIEW)]
+    [CheckPermission(StandardPermission.Security.ACCESS_ADMIN_PANEL)]
     public virtual async Task<IActionResult> Edit(int id)
     {
         //try to get a customer with the specified id
